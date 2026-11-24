@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soc-triage-agent"
+version = "0.1.0"
+description = "Agentic SOC alert triage: tool-driven investigation, MITRE ATT&CK mapping, explainable P1-P4 scoring."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = []  # core is dependency-free and runs offline
+
+[project.optional-dependencies]
+claude = ["anthropic>=0.40"]
+ui = ["streamlit>=1.37"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+soc-triage = "soc_triage.cli:main"
+
+[tool.setuptools]
+packages = ["soc_triage"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

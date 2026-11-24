@@ -1,0 +1,16 @@
+{
+  "users": {
+    "jdoe": {"role": "Accountant", "privileged": false, "department": "Finance"},
+    "asmith": {"role": "Domain Admin", "privileged": true, "department": "IT"},
+    "svc_backup": {"role": "Service Account", "privileged": true, "department": "IT"},
+    "mlee": {"role": "Software Engineer", "privileged": false, "department": "Engineering"},
+    "rpatel": {"role": "CFO", "privileged": false, "department": "Executive"}
+  },
+  "hosts": {
+    "DC01": {"criticality": "critical", "role": "Domain Controller"},
+    "SQL-PROD-02": {"criticality": "critical", "role": "Production Database"},
+    "WKS-FIN-114": {"criticality": "medium", "role": "Finance Workstation"},
+    "WKS-ENG-207": {"criticality": "low", "role": "Developer Workstation"},
+    "WEB-DMZ-01": {"criticality": "high", "role": "Public Web Server"}
+  }
+}
